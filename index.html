@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My習慣トラッカー</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f0f2f5; }
+        button { padding: 20px 40px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; background: #007aff; color: white; }
+    </style>
+</head>
+<body>
+    <h1>今日の習慣</h1>
+    <p id="status">未完了</p>
+    <button onclick="done()">完了！</button>
+
+    <script>
+        function done() {
+            document.getElementById('status').innerText = "✅ 達成しました！";
+            alert("お疲れ様！記録しました（※保存機能は別途必要）");
+        }
+    </script>
+</body>
+</html>
