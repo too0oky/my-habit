@@ -141,53 +141,85 @@
     </div>
 
     <script>
-        const today = new Date().toLocaleDateString();
-        let habitStates = [false, false, false];
+    const today = new Date().toLocaleDateString();
+    let habitStates = [false, false, false];
+    let streak = parseInt(localStorage.getItem('streakCount') || 0);
 
-        window.onload = function() {
-            document.getElementById('today-date').innerText = today;
-            
-            // 保存された日付と今日が違うならリセット
-            const savedDate = localStorage.getItem('lastSavedDate');
-            if (savedDate === today) {
-                const savedStates = JSON.parse(localStorage.getItem('habitStates'));
-                if (savedStates) {
-                    habitStates = savedStates;
-                    render();
-                }
-            } else {
-                localStorage.setItem('lastSavedDate', today);
-                save();
+    window.onload = function() {
+        document.getElementById('today-date').innerText = today;
+        
+        const savedDate = localStorage.getItem('lastSavedDate');
+        
+        // 1. 日付が変わっているかチェック
+        if (savedDate !== today) {
+            // もし昨日達成していなかったらストリークをリセット
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (savedDate !== yesterday.toLocaleDateString() && savedDate !== null) {
+                // 前日が完了日でない ＝ 途切れた
+                streak = 0;
+                localStorage.setItem('streakCount', 0);
             }
-        }
-
-        function toggleHabit(index) {
-            habitStates[index] = !habitStates[index];
+            
+            // 新しい日のために状態リセット
+            habitStates = [false, false, false];
+            localStorage.setItem('lastSavedDate', today);
             save();
+        } else {
+            // 同じ日なら保存された状態を読み込む
+            const savedStates = JSON.parse(localStorage.getItem('habitStates'));
+            if (savedStates) habitStates = savedStates;
+        }
+        render();
+    }
+
+    function toggleHabit(index) {
+        habitStates[index] = !habitStates[index];
+        
+        // 全項目チェックされたか確認
+        const allDoneBefore = habitStates.every(s => s === true);
+        
+        save();
+        render();
+
+        // すべて完了した瞬間にストリークを増やす
+        const isAllDoneNow = habitStates.every(s => s === true);
+        const lastStreakDate = localStorage.getItem('lastStreakDate');
+
+        if (isAllDoneNow && lastStreakDate !== today) {
+            streak++;
+            localStorage.setItem('streakCount', streak);
+            localStorage.setItem('lastStreakDate', today);
+            alert(`🔥 ${streak}日連続達成！この調子！`);
             render();
         }
+    }
 
-        function save() {
-            localStorage.setItem('habitStates', JSON.stringify(habitStates));
-        }
+    function save() {
+        localStorage.setItem('habitStates', JSON.stringify(habitStates));
+    }
 
-        function render() {
-            const items = document.querySelectorAll('.habit-item');
-            let doneCount = 0;
+    function render() {
+        const items = document.querySelectorAll('.habit-item');
+        let doneCount = 0;
 
-            habitStates.forEach((isDone, i) => {
-                if (isDone) {
-                    items[i].classList.add('done');
-                    doneCount++;
-                } else {
-                    items[i].classList.remove('done');
-                }
-            });
+        habitStates.forEach((isDone, i) => {
+            if (isDone) {
+                items[i].classList.add('done');
+                doneCount++;
+            } else {
+                items[i].classList.remove('done');
+            }
+        });
 
-            // プログレスバーの更新
-            const progress = (doneCount / habitStates.length) * 100;
-            document.getElementById('progress-bar').style.width = progress + "%";
-        }
+        // 進捗バー更新
+        const progress = (doneCount / habitStates.length) * 100;
+        document.getElementById('progress-bar').style.width = progress + "%";
+        
+        // ストリーク表示（HTML側に表示場所を作る必要があります）
+        document.getElementById('streak-display').innerText = `🔥 ${streak}日連続`;
+    }
     </script>
 </body>
 </html>
+
