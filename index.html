@@ -16,10 +16,24 @@
     <button onclick="done()">完了！</button>
 
     <script>
-        function done() {
-            document.getElementById('status').innerText = "✅ 達成しました！";
-            alert("お疲れ様！記録しました（※保存機能は別途必要）");
+    // ページを開いたときに、保存されたデータがあるか確認
+    window.onload = function() {
+        const status = localStorage.getItem('habitStatus');
+        if (status === 'done') {
+            document.getElementById('status').innerText = "✅ 今日は達成済みです！";
         }
+    }
+
+    function done() {
+        // 表示を変える
+        document.getElementById('status').innerText = "✅ 達成しました！";
+        
+        // iPhoneの中に「今日はやったよ」という情報を保存
+        localStorage.setItem('habitStatus', 'done');
+        
+        alert("本体に記録しました！");
+    }
     </script>
 </body>
+
 </html>
