@@ -3,136 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Habit</title>
+    <title>Habitify</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    
     <style>
         :root {
-            --bg-color: #F2F2F7;
-            --card-bg: #FFFFFF;
-            --primary-color: #007AFF;
-            --text-main: #1C1C1E;
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --primary: #007AFF;
+            --success: #34C759;
+            --text: #1C1C1E;
             --text-sub: #8E8E93;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
         }
 
-        .container {
-            width: 85%;
-            max-width: 400px;
-            background: var(--card-bg);
-            padding: 40px 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
-        h1 { font-size: 24px; margin-bottom: 8px; }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 30px;
-            background: #E5E5EA;
-            color: var(--text-sub);
-        }
-
-        .status-badge.active {
-            background: #E1F5FE;
-            color: var(--primary-color);
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 14px;
+        .header {
             width: 100%;
-            transition: transform 0.1s, opacity 0.2s;
+            max-width: 400px;
+            margin: 20px 0;
+        }
+
+        h1 { font-size: 28px; margin: 0; }
+        .date { color: var(--text-sub); font-size: 16px; }
+
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            background: #E5E5EA;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            background: var(--success);
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .habit-list {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .habit-item {
+            background: var(--card);
+            margin-bottom: 12px;
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+        }
+
+        .habit-item:active { transform: scale(0.98); }
+
+        .habit-info { display: flex; flex-direction: column; }
+        .habit-title { font-size: 18px; font-weight: 600; }
+        .habit-time { font-size: 13px; color: var(--text-sub); }
+
+        .checkbox {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #C7C7CC;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
         }
 
-        button:active {
-            transform: scale(0.96);
-            opacity: 0.8;
+        .habit-item.done .checkbox {
+            background: var(--success);
+            border-color: var(--success);
         }
 
-        .counter {
-            margin-top: 30px;
-            font-size: 14px;
+        .habit-item.done .checkbox::after {
+            content: "✓";
+            color: white;
+            font-weight: bold;
+        }
+
+        .habit-item.done .habit-title {
+            text-decoration: line-through;
             color: var(--text-sub);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>本をよむ</h1>
-        <div id="badge" class="status-badge">未完了</div>
-        
-        <button onclick="done()">完了した！</button>
+    <div class="header">
+        <div class="date" id="today-date">202X/XX/XX</div>
+        <h1>今日の習慣</h1>
+    </div>
 
-        <div class="counter">
-            現在の記録: <span id="count">0</span>回
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="habit-list" id="habit-list">
+        <div class="habit-item" onclick="toggleHabit(0)">
+            <div class="habit-info">
+                <span class="habit-title">6:00に起床</span>
+                <span class="habit-time">Morning Routine</span>
+            </div>
+            <div class="checkbox"></div>
+        </div>
+        <div class="habit-item" onclick="toggleHabit(1)">
+            <div class="habit-info">
+                <span class="habit-title">スクワット20回</span>
+                <span class="habit-time">Health</span>
+            </div>
+            <div class="checkbox"></div>
+        </div>
+        <div class="habit-item" onclick="toggleHabit(2)">
+            <div class="habit-info">
+                <span class="habit-title">作業/勉強30分</span>
+                <span class="habit-time">Self Improvement</span>
+            </div>
+            <div class="checkbox"></div>
         </div>
     </div>
 
     <script>
-        // ページ読み込み時の処理
+        const today = new Date().toLocaleDateString();
+        let habitStates = [false, false, false];
+
         window.onload = function() {
-            const count = localStorage.getItem('habitCount') || 0;
-            document.getElementById('count').innerText = count;
+            document.getElementById('today-date').innerText = today;
             
-            // 今日完了しているかチェック（簡易版）
-            if(localStorage.getItem('lastDoneDate') === new Date().toLocaleDateString()){
-                updateUI();
+            // 保存された日付と今日が違うならリセット
+            const savedDate = localStorage.getItem('lastSavedDate');
+            if (savedDate === today) {
+                const savedStates = JSON.parse(localStorage.getItem('habitStates'));
+                if (savedStates) {
+                    habitStates = savedStates;
+                    render();
+                }
+            } else {
+                localStorage.setItem('lastSavedDate', today);
+                save();
             }
         }
 
-        function done() {
-            const lastDate = localStorage.getItem('lastDoneDate');
-            const today = new Date().toLocaleDateString();
-
-            if(lastDate === today) {
-                alert("今日はすでに完了しています！");
-                return;
-            }
-
-            // カウントアップ
-            let count = parseInt(localStorage.getItem('habitCount') || 0);
-            count++;
-            localStorage.setItem('habitCount', count);
-            localStorage.setItem('lastDoneDate', today);
-
-            // 表示更新
-            document.getElementById('count').innerText = count;
-            updateUI();
+        function toggleHabit(index) {
+            habitStates[index] = !habitStates[index];
+            save();
+            render();
         }
 
-        function updateUI() {
-            const badge = document.getElementById('badge');
-            badge.innerText = "✅ 達成済み";
-            badge.classList.add('active');
-            document.querySelector('button').style.backgroundColor = "#34C759";
-            document.querySelector('button').innerText = "お疲れ様でした！";
+        function save() {
+            localStorage.setItem('habitStates', JSON.stringify(habitStates));
+        }
+
+        function render() {
+            const items = document.querySelectorAll('.habit-item');
+            let doneCount = 0;
+
+            habitStates.forEach((isDone, i) => {
+                if (isDone) {
+                    items[i].classList.add('done');
+                    doneCount++;
+                } else {
+                    items[i].classList.remove('done');
+                }
+            });
+
+            // プログレスバーの更新
+            const progress = (doneCount / habitStates.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
         }
     </script>
 </body>
